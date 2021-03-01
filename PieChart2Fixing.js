@@ -1,101 +1,85 @@
 import React, { useState, useEffect, useRef } from "react";
 
 export const PieChart2 = ({ initialValues = [15, 31, 221, 5, 15] }) => {
-  const [sortedValues, setSortedValues] = useState([8, 9, 9, 9]);
-  const [chartData, setChartData] = useState([]);
-  const [angleOffset, setAngleOffset] = useState(-90);
-  const latestOffset = useRef(angleOffset)
-  const [dataTotal, setDataTotal] = useState(0);
-  const [strokeDashOffset, setStrokeDashOffset] = useState([]);
-  const [circleTransformValue, setCircleTransformValue] = useState([]);
-  const cx = 80;
-  const cy = 80;
-  const radius = 75;
-  const strokeWidth = 30;
-  const colors = ["#6495ED", "purple", "#cd5c5c", "blue", "lightgreen"];
+  const radius = 60;
   const circumference = 2 * Math.PI * radius;
   const adjustedCircumference = circumference - 2;
+  const [strokeDashoffset, setStrokeDashOffset] = useState([]);
+  const [circleTransformValue, setCircleTransformValue] = useState([]);
+  let sortedValuesRef = useRef([4, 1, 5]);
+  const  [angleOffset, setAngleOffset] = useState([-90]);
+  const cx = 80;
+  const cy = 80;
 
-  const dataPercentage = (dataVal) => {
-    return dataVal / dataTotal;
-  };
+
+  const strokeWidth = 30;
+  const colors = ["#6495ED", "purple", "#cd5c5c", "blue", "lightgray", 
+"purple", "green"];
 
   useEffect(() => {
-    //sortInitialValues() {
-    const sorted = initialValues.sort((a, b) => b - a);
-    setSortedValues(sorted);
-  }, [initialValues]);
-
-  useEffect(() => {
-    console.log(sortedValues)
-    // calculateChartData() {
-    sortedValues.map((dataVal, index) => {
-      console.log("Current offset" + latestOffset.current)
-          setChartData([...chartData, latestOffset.current])
-      //console.log("data" + data)
-      console.log("chartData" + chartData)
-      const test = dataPercentage(dataVal) * 360 + latestOffset.current;
-      
-      console.log("Obliczenia" + test)
-      setAngleOffset(dataPercentage(dataVal) * 360 + angleOffset);
-    }, [sortedValues]);
-
-    const reducedValues = sortedValues.reduce((acc, val) => acc + val);
-    setDataTotal(reducedValues);
-
-  },[sortedValues])
-
-
-    useEffect(() => {
-      
-    sortedValues.map((data, index) => {
-      const strokeDiff = dataPercentage(data) * circumference;
-      setStrokeDashOffset([...strokeDashOffset, circumference - strokeDiff]);
-      let degrees = chartData[index];
-      console.log("degrees " + degrees)
-      setCircleTransformValue([
-        ...circleTransformValue,
-        `rotate(${chartData[index]}, ${cx}, ${cy})`,
-      ]);
-
+    let angleData = [-90];
+    const circleValues = []
+    const currentChartData = [];
+    const strokeDiffArray = [];
+    sortedValuesRef.current = initialValues.sort((a, b) => b - a);
+    const dataTotal = sortedValuesRef.current.reduce((acc, val) => acc + val);
+    sortedValuesRef.current.map((value, index) => {
+      //chartData.push(angleData[index]);
+      currentChartData.push(angleData[index])
+      console.log('obl wart ' + (value / dataTotal) * 360 + angleData[index])
+     angleData.push(((value / dataTotal) * 360) + (angleData[index]));
     });
 
-  }, [chartData]);
+    console.log("adfff" + angleData)
+
+  
+
+    sortedValuesRef.current.map((value, index) => {
+      const strokeDiff = (value / dataTotal) * circumference;
+      strokeDiffArray.push(strokeDiff)
+    });
+
+    setStrokeDashOffset(strokeDiffArray);
 
 
+    sortedValuesRef.current.map((value, index) => {
+     
+      const rotateValue = `rotate(${currentChartData[index]}, ${cx}, ${cy})`;
+      circleValues.push(rotateValue)
+     
+    });
+    setCircleTransformValue(circleValues);
 
+    console.log(
+        "cirr cjhart data" + currentChartData + "\n"
+    )
+    console.log("circle transform " + circleTransformValue);
+    console.log("str dash off" + strokeDashoffset)
+  }, [initialValues]);
 
   return (
     <div>
-      <svg height="250" width="200" viewBox="0 0 200 200">
-        {strokeDashOffset.map((value, index) => (
+      <svg height="160" width="160" viewBox="0 0 160 160">
+        <text style={{ color: "white" }} x="0" u="0">
+          Test
+        </text>
+        {circleTransformValue.map((value, index) => (
           <g>
             <circle
+              key={index}
               cx={cx}
               cy={cy}
               r={radius}
               stroke={colors[index]}
               strokeWidth={strokeWidth}
-              strokeDasharray={value}
-              transform={circleTransformValue[index]}
+              strokeDashoffset={strokeDashoffset[index]}
+              strokeDasharray={adjustedCircumference}
+              transform={value}
               fill="transparent"
             />
-            <text></text>
           </g>
         ))}
       </svg>
-
-      <p>{latestOffset.current}</p>
-
-
-      <div>Stroke Dash Offset {strokeDashOffset.map((val) => <p>{val}</p>)}</div>
-      <br/>
-      <p>Chart Data {chartData.map((val) => val)} </p>
-      
-
-      <div>Circle transform value {circleTransformValue.map((val) =>
-        <p>{val}</p>)}
-        </div>
     </div>
   );
 };
