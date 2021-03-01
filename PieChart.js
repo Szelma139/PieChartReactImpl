@@ -18,7 +18,7 @@ export const PieChart = ({ initialValues = [15, 31, 221, 5, 15] }) => {
   });
 
   useEffect(() => {
-    setAdjustedCircumference(circumference - 2);
+    setAdjustedCircumference(circumference - 4);
   }, [circumference]);
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export const PieChart = ({ initialValues = [15, 31, 221, 5, 15] }) => {
   useEffect(() => {
     // calculateChartData() {
     sortedValues.map((dataVal, index) => {
-      const data = { degrees: angleOffset };
+      const data = angleOffset;
       setChartData([...chartData, data]);
       setAngleOffset(dataPercentage(dataVal) * 360 + angleOffset);
     });
@@ -55,8 +55,8 @@ export const PieChart = ({ initialValues = [15, 31, 221, 5, 15] }) => {
   };
 
   const returnCircleTransformValue = (index) => {
-    console.log("degree" + chartData[index]?.degrees)
-    return `rotate(${chartData[index]?.degrees}, ${cx}, ${cy})`;
+    console.log("degree" + chartData[index])
+    return `rotate(${chartData[index]}, ${cx}, ${cy})`;
   };
 
   return (
@@ -70,25 +70,13 @@ export const PieChart = ({ initialValues = [15, 31, 221, 5, 15] }) => {
               r={radius}
               stroke={colors[index]}
               strokeWidth={strokeWidth}
-              strokeDasharray={calculateStrokeDashOffset(value, circumference)}
+              strokeDashoffset={calculateStrokeDashOffset(value, circumference)}
+              strokeDasharray={adjustedCircumference}
               transform={returnCircleTransformValue(index)} fill="transparent"
             />
             <text></text>
           </g>
         ))}
-        {/* <g>
-          {initialValues}
-          <circle
-            cx="150"
-            cy="40"
-            r="25"
-            fill="transparent"
-            stroke="blue"
-            stroke-width="7"
-            strokeDasharray={circumference}
-          ></circle>
-          <text></text>
-        </g> */}
       </svg>
     </div>
   );
