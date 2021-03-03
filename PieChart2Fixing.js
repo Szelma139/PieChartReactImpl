@@ -1,82 +1,67 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 
 export const PieChart2 = ({ initialValues = [15, 31, 221, 5, 15] }) => {
-  const radius = 60;
-  const circumference = 2 * Math.PI * radius;
-  const adjustedCircumference = circumference - 2;
-  const [strokeDashoffset, setStrokeDashOffset] = useState([]);
-  const [circleTransformValue, setCircleTransformValue] = useState([]);
-  let sortedValuesRef = useRef([4, 1, 5]);
-  const  [angleOffset, setAngleOffset] = useState([-90]);
   const cx = 80;
   const cy = 80;
-
-
+  const radius = 60;
   const strokeWidth = 30;
-  const colors = ["#6495ED", "purple", "#cd5c5c", "blue", "lightgray", 
-"purple", "green"];
+  const colors = ["#6495ED", "purple", "#cd5c5c", "blue", "lightgreen", "orange", "teal"];
+  const circumference = 2 * Math.PI * radius;
+  const adjustedCircumference = circumference - 6;
+  let sortedValues = [];
+  let dataTotal = 0;
+  let angleOffset = -90;
+  let chartData = [];
+  const [circleTransform, setCircleTransform] = useState([]);
+  const [strokeDashOffset, setStrokeDashOffset] = useState([]);
 
   useEffect(() => {
-    let angleData = [-90];
-    const circleValues = []
-    const currentChartData = [];
-    const strokeDiffArray = [];
-    sortedValuesRef.current = initialValues.sort((a, b) => b - a);
-    const dataTotal = sortedValuesRef.current.reduce((acc, val) => acc + val);
-    sortedValuesRef.current.map((value, index) => {
-      //chartData.push(angleData[index]);
-      currentChartData.push(angleData[index])
-      console.log('obl wart ' + (value / dataTotal) * 360 + angleData[index])
-     angleData.push(((value / dataTotal) * 360) + (angleData[index]));
-    });
+    sortedValues = initialValues.sort((a, b) => b - a);
+    dataTotal = sortedValues.reduce((acc, val) => acc + val)
+    sortedValues.forEach((dataVal, index) => {
+      chartData.push(angleOffset)
+      angleOffset = dataVal / dataTotal * 360 + angleOffset;
+    })
 
-    console.log("adfff" + angleData)
+    let strokeArray=[];
+    sortedValues.forEach((data, index) => {
+      const strokeDirr = data / dataTotal * circumference;
+      console.log(strokeDirr)
+      strokeArray.push(circumference - strokeDirr);
+    })
+    setStrokeDashOffset(strokeArray);
 
-  
+    let rotateArray = [];
+    sortedValues.forEach((data, index) => {
+      const rotate = `rotate(${chartData[index]}, ${cx}, ${cy})`
+      rotateArray.push(rotate)
+    })
+    setCircleTransform([...rotateArray])
+    console.log(rotateArray)
+    return () => {
+      console.log('cleanup');
+    };
+  }, []);
 
-    sortedValuesRef.current.map((value, index) => {
-      const strokeDiff = (value / dataTotal) * circumference;
-      strokeDiffArray.push(strokeDiff)
-    });
-
-    setStrokeDashOffset(strokeDiffArray);
-
-
-    sortedValuesRef.current.map((value, index) => {
-     
-      const rotateValue = `rotate(${currentChartData[index]}, ${cx}, ${cy})`;
-      circleValues.push(rotateValue)
-     
-    });
-    setCircleTransformValue(circleValues);
-
-    console.log(
-        "cirr cjhart data" + currentChartData + "\n"
-    )
-    console.log("circle transform " + circleTransformValue);
-    console.log("str dash off" + strokeDashoffset)
-  }, [initialValues]);
 
   return (
     <div>
-      <svg height="160" width="160" viewBox="0 0 160 160">
-        <text style={{ color: "white" }} x="0" u="0">
-          Test
-        </text>
-        {circleTransformValue.map((value, index) => (
+      <svg height="250" width="200" viewBox="0 0 200 200">
+        {strokeDashOffset.map((value, index) => (
           <g>
             <circle
-              key={index}
               cx={cx}
               cy={cy}
               r={radius}
+              key={value}
               stroke={colors[index]}
               strokeWidth={strokeWidth}
-              strokeDashoffset={strokeDashoffset[index]}
               strokeDasharray={adjustedCircumference}
-              transform={value}
+              strokeDashoffset={value}
+              transform={circleTransform[index]}
               fill="transparent"
             />
+            <text></text>
           </g>
         ))}
       </svg>
