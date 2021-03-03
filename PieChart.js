@@ -1,80 +1,67 @@
 import React, { useState, useEffect } from "react";
 
-export const PieChart = ({ initialValues = [15, 31, 221, 5, 15] }) => {
-  const [circumference, setCircumference] = useState(0);
-  const [adjustedCircumference, setAdjustedCircumference] = useState(0);
-  const [sortedValues, setSortedValues] = useState([8, 9, 9, 9]);
-  const [chartData, setChartData] = useState([]);
-  const [angleOffset, setAngleOffset] = useState(-90);
-  const [dataTotal, setDataTotal] = useState(0);
+export const PieChart2 = ({ initialValues = [15, 31, 221, 5, 15] }) => {
   const cx = 80;
   const cy = 80;
   const radius = 60;
   const strokeWidth = 30;
-  const colors =  ["#6495ED", "purple", "#cd5c5c", "blue", "lightgray"];
+  const colors = ["#6495ED", "purple", "#cd5c5c", "blue", "lightgreen", "orange", "teal"];
+  const circumference = 2 * Math.PI * radius;
+  const adjustedCircumference = circumference - 6;
+  let sortedValues = [];
+  let dataTotal = 0;
+  let angleOffset = -90;
+  let chartData = [];
+  const [circleTransform, setCircleTransform] = useState([]);
+  const [strokeDashOffset, setStrokeDashOffset] = useState([]);
 
   useEffect(() => {
-    setCircumference(2 * Math.PI * radius); //circumference
-  });
+    sortedValues = initialValues.sort((a, b) => b - a);
+    dataTotal = sortedValues.reduce((acc, val) => acc + val)
+    sortedValues.forEach((dataVal, index) => {
+      chartData.push(angleOffset)
+      angleOffset = dataVal / dataTotal * 360 + angleOffset;
+    })
 
-  useEffect(() => {
-    setAdjustedCircumference(circumference - 4);
-  }, [circumference]);
+    let strokeArray=[];
+    sortedValues.forEach((data, index) => {
+      const strokeDirr = data / dataTotal * circumference;
+      console.log(strokeDirr)
+      strokeArray.push(circumference - strokeDirr);
+    })
+    setStrokeDashOffset(strokeArray);
 
-  useEffect(() => {
-    //sortInitialValues() {
-    const sorted = initialValues.sort((a, b) => b - a);
-    setSortedValues(sorted);
-    console.log("hhhhhh" + sortedValues);
-  },[initialValues]);
+    let rotateArray = [];
+    sortedValues.forEach((data, index) => {
+      const rotate = `rotate(${chartData[index]}, ${cx}, ${cy})`
+      rotateArray.push(rotate)
+    })
+    setCircleTransform([...rotateArray])
+    console.log(rotateArray)
+    return () => {
+      console.log('cleanup');
+    };
+  }, []);
 
-  useEffect(() => {
-    // calculateChartData() {
-    sortedValues.map((dataVal, index) => {
-      const data = angleOffset;
-      setChartData([...chartData, data]);
-      setAngleOffset(dataPercentage(dataVal) * 360 + angleOffset);
-    });
-         console.log("chart data " + chartData)
-
-  }, [sortedValues]);
-
-  useEffect(() => {
-    const reducedValues = sortedValues.reduce((acc, val) => acc + val);
-    setDataTotal(reducedValues);
-  }, [sortedValues]);
-
-  const dataPercentage = (dataVal) => {
-    return dataVal / dataTotal;
-  };
-
-  const calculateStrokeDashOffset = (dataVal, circumference) => {
-    const strokeDiff = dataPercentage(dataVal) * circumference;
-    console.log(strokeDiff)
-    return circumference - strokeDiff;
-  };
-
-  const returnCircleTransformValue = (index) => {
-    console.log("degree" + chartData[index])
-    return `rotate(${chartData[index]}, ${cx}, ${cy})`;
-  };
 
   return (
     <div>
-      <svg height="160" width="160" viewBox="0 0 160 160">
-        {sortedValues.map((value, index) => (
+      <svg height="250" width="200" viewBox="0 0 200 200">
+        {strokeDashOffset.map((value, index) => (
           <g>
             <circle
               cx={cx}
               cy={cy}
               r={radius}
+              key={value}
               stroke={colors[index]}
               strokeWidth={strokeWidth}
-              strokeDashoffset={calculateStrokeDashOffset(value, circumference)}
               strokeDasharray={adjustedCircumference}
-              transform={returnCircleTransformValue(index)} fill="transparent"
+              strokeDashoffset={value}
+              transform={circleTransform[index]}
+              fill="transparent"
             />
-            <text></text>
+            <text x="80" y="80">test</text>
           </g>
         ))}
       </svg>
