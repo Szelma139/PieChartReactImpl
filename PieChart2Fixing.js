@@ -15,6 +15,8 @@ export const PieChart2 = ({ initialValues = [15, 31, 221, 5, 15] }) => {
   const [circleTransform, setCircleTransform] = useState([]);
   const [strokeDashOffset, setStrokeDashOffset] = useState([]);
 
+  //hover className="onhover"  {circleTransform[index]} and scale
+  
   useEffect(() => {
     sortedValues = initialValues.sort((a, b) => b - a);
     dataTotal = sortedValues.reduce((acc, val) => acc + val)
