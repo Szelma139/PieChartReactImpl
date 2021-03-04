@@ -17,7 +17,7 @@ export const PieChart = ({ initialValues = [15, 31, 221, 5, 15] }) => {
     "teal",
   ];
   const circumference = 2 * Math.PI * radius;
-  const adjustedCircumference = circumference - 6;
+  const adjustedCircumference = circumference - 35;
   let sortedValues = [];
   let dataTotal = 0;
   let angleOffset = -90;
@@ -99,7 +99,8 @@ export const PieChart = ({ initialValues = [15, 31, 221, 5, 15] }) => {
               strokeDasharray={adjustedCircumference}
               strokeDashoffset={value}
               transform={hoveredItems[index] ? `${circleTransform[index]} scale(1.1)`: `${circleTransform[index]}`}
-              fill="transparent"
+              fill="none"
+              stroke-linecap= "round"
               //style={{stroke: hoveredItems[index] ? "black": "white" }}
             />
 
@@ -111,6 +112,7 @@ export const PieChart = ({ initialValues = [15, 31, 221, 5, 15] }) => {
       </svg>
       Hovers
       {hoveredItems.map((val)=>{val.toString()})}
+
     </div>
   );
 };
